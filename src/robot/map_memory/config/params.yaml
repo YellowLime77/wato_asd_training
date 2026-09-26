@@ -1,3 +1,10 @@
-# map_memory_node:
-#   ros__parameters:
-    
+map_memory_node:
+  ros__parameters:
+    resolution: 0.1          # m per cell
+    width: 400               # cells, 40m x 40m covers the whole 30m x 30m world
+    height: 400
+    origin_x: -20.0
+    origin_y: -20.0
+    frame_id: "sim_world"
+    distance_threshold: 1.5  # m the robot has to move before we merge a new costmap
+    update_period_ms: 1000

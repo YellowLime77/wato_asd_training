@@ -1,3 +1,6 @@
-# planner_node:
-#   ros__parameters:
-    
+planner_node:
+  ros__parameters:
+    lethal_cost: 50      # cells at or above this cost are treated as walls
+    cost_weight: 5.0     # how much A* avoids high cost cells (0 = only shortest distance)
+    goal_tolerance: 0.5  # m
+    goal_timeout: 120.0  # s before giving up on a goal

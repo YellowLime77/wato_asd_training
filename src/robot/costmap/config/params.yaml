@@ -1,3 +1,6 @@
-# costmap_node:
-#   ros__parameters:
-
+costmap_node:
+  ros__parameters:
+    resolution: 0.1       # m per cell
+    width: 300            # cells
+    height: 300           # cells
+    inflation_radius: 2.0 # m

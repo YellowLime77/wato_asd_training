@@ -1,22 +1,28 @@
-#include <chrono>
 #include <memory>
- 
+
 #include "costmap_node.hpp"
- 
+
 CostmapNode::CostmapNode() : Node("costmap"), costmap_(robot::CostmapCore(this->get_logger())) {
-  // Initialize the constructs and their parameters
-  string_pub_ = this->create_publisher<std_msgs::msg::String>("/test_topic", 10);
-  timer_ = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&CostmapNode::publishMessage, this));
+  double resolution = this->declare_parameter("resolution", 0.1);
+  int width = this->declare_parameter("width", 300);
+  int height = this->declare_parameter("height", 300);
+  double inflation_radius = this->declare_parameter("inflation_radius", 2.0);
+  costmap_.initCostmap(resolution, width, height, inflation_radius);
+
+  lidar_sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
+    "/lidar", 10, std::bind(&CostmapNode::lidarCallback, this, std::placeholders::_1));
+  costmap_pub_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("/costmap", 10);
 }
- 
-// Define the timer to publish a message every 500ms
-void CostmapNode::publishMessage() {
-  auto message = std_msgs::msg::String();
-  message.data = "Hello, ROS 2!";
-  RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-  string_pub_->publish(message);
+
+void CostmapNode::lidarCallback(const sensor_msgs::msg::LaserScan::SharedPtr msg) {
+  costmap_.updateCostmap(msg);
+
+  nav_msgs::msg::OccupancyGrid costmap = costmap_.getCostmap();
+  // Costmap is centered on the lidar, so it uses the same frame and stamp as the scan
+  costmap.header = msg->header;
+  costmap_pub_->publish(costmap);
 }
- 
+
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
